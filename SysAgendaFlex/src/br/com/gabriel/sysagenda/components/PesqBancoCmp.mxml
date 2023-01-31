@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:services="services.*"
+		 xmlns:cmp="components.cmp.*"
+		 xmlns:components="br.com.gabriel.sysagenda.components.*"
+		 width="400" height="22">
+	<s:layout>
+		<s:HorizontalLayout verticalAlign="bottom"/>
+	</s:layout>
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.core.UIComponent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import valueObjects.Contato;
+			
+			
+			
+			[Bindable]
+			public var entity:Contato = null;	
+			
+			[Bindable]
+			public var tiEnabled :Boolean = true;
+			
+			[Bindable]
+			public var uiPai :UIComponent = null;
+			
+			[Bindable]
+			public var proximoCampo :UIComponent = null;
+
+			[Bindable]
+			public var permiteInativo :Boolean = true;
+			
+			public function setUiPai(ui:UIComponent) :void
+			{
+				uiPai = ui;
+			}
+			
+			public function get codContato() :int {
+				
+				if ( entity == null ) {
+					return 0;
+				}
+				return entity.codContato;
+			}
+			
+			public function set cod(cod:int):void {
+				if ( !isNaN(cod) && cod != 0 )
+					getContatoResultInit.token = pesqService.getContato(cod);
+				else {
+					entity = null;
+				}
+			}
+			
+			public function set codAgencia(cod:int):void {
+				
+				if ( !isNaN(cod) && cod != 0 )
+					getContatoResultInit.token = pesqService.getContato(cod);
+				else {
+					entity = null;
+				}
+			}
+			
+			protected function tiCod_keyDownHandler(event:KeyboardEvent):void
+			{
+				if ( tiEnabled && event.keyCode == Keyboard.ENTER ) {
+					if ( tiCod.text == "" ) {
+						chamaProximoCampo();
+					} else {
+						getContatoResult.token = pesqService.getContato(parseInt(tiCod.text));
+					}
+				} else {
+					entity = null;
+				}
+			}
+			
+			
+			protected function getContatoResultInit_resultHandler(event:ResultEvent):void
+			{
+				entity = event.result as Contato;
+				if ( entity == null ) {
+					Alert.show("Código inexistente.", "Alerta", mx.controls.Alert.OK, this);
+					tiCod.text = "";
+				}
+			}	
+			
+			protected function chamaProximoCampo() :void 
+			{
+				if ( proximoCampo != null ){
+					proximoCampo.setFocus();
+				}
+			}
+			
+			protected function showLista():void
+			{
+				var ui:PesqBancoLst= new PesqBancoLst();
+				if ( uiPai == null )
+					PopUpManager.addPopUp(ui, this, true);
+				else
+					PopUpManager.addPopUp(ui, uiPai, true);
+				PopUpManager.centerPopUp(ui);
+				
+				ui.addEventListener(Event.REMOVED_FROM_STAGE, function(event :Event) :void {
+					if (!ui.fechado) {
+						entity = ui.banco;
+						if ( !permiteInativo && entity !=null ){
+							entity = null;
+							Alert.show("Esse banco não pode ser selecionado pois encontra-se inativo no registro!", "Alerta", mx.controls.Alert.OK, this);
+						}
+					}
+				});
+			}
+			
+			override public function setFocus():void{
+				tiCod.setFocus();
+			}			
+			
+			protected function tiCod_keyUpHandler(event:KeyboardEvent):void
+			{
+				if(tiEnabled && event.keyCode == 106){
+					showLista();
+				}
+			}
+			
+			protected function getContatoResult_resultHandler(event:ResultEvent):void
+			{
+				
+				entity = Contato(event.result);
+				if ( entity == null ) {
+					Alert.show("Código inexistente.", "Alerta", mx.controls.Alert.OK, this);
+					tiCod.text = "";
+					tiNome.text = "";
+				} else {
+					tiCod.text = entity.codContato + "";
+					tiNome.text = entity.nome;
+					dispatchEvent(new Event("preenchido")); 
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		<s:CallResponder id="getContatoResult" result="getContatoResult_resultHandler(event)"/>
+		
+		<s:CallResponder id="getContatoResultInit" result="getContatoResultInit_resultHandler(event)"/>
+		
+		<services:ContatoService id="pesqService"/>
+	</fx:Declarations>
+	<components:TextInputCod id="tiCod" x="2" y="1.5" width="57" enabled="{tiEnabled}"
+							 keyDown="tiCod_keyDownHandler(event)" keyUp="tiCod_keyUpHandler(event)"
+							 maxChars="9" restrict="0-9" text="{entity.codContato}" textAlign="right"/>
+	<s:TextInput id="tiNome" x="67" y="1.5" width="100%" contentBackgroundColor="#EEEEEE"
+				 editable="false" text="{entity.nome}"/>
+	<s:Button id="btFind" x="358" y="2" width="33" height="22" label="*" click="showLista()"
+			  enabled="{tiEnabled}"/>
+</s:Group>

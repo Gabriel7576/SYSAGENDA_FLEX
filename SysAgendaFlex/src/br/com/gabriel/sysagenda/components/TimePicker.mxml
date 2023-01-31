@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 width="59" height="55" minWidth="955" minHeight="600" xmlns:cmp="components.cmp.*" xmlns:components="br.com.gabriel.sysagenda.components.*">
+	<s:layout>
+		<s:BasicLayout/>
+	</s:layout>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.containers.TabNavigator;
+			import mx.core.UIComponent;
+			import mx.events.FlexEvent;
+			import mx.skins.spark.EditableComboBoxSkin;
+			
+			[Bindable]
+			public var proximoCampo :UIComponent = null;
+			
+			[Bindable]
+			public var proximoCampo2 :UIComponent = null;
+			
+			[Bindable]
+			public var tabNavigator :TabNavigator = null;
+			
+			[Bindable]
+			public var travar :Boolean = true;
+			
+			public function set trava(v :Boolean) :void 
+			{
+				travar = v;	
+			}
+			
+			public function set hour(v :String) :void 
+			{
+				cmpSH.value = parseInt(v);	
+			}
+			
+			public function get hour() :String 
+			{
+				return cmpHora.text;
+			}
+			
+			public function set minute(v :String) :void 
+			{
+				cmpSM.value = parseInt(v);
+			}
+			
+			public function limpar() :void 
+			{
+				cmpHora.text = "00";
+				cmpMinuto.text = "00";
+			}
+			
+			public function get minute() :String 
+			{
+				return cmpMinuto.text;
+			}
+			
+			private function chamaProximoCampo():void
+			{
+				if ( tabNavigator != null ) {
+					tabNavigator.selectedIndex = tabNavigator.selectedIndex + 1;
+				}
+				if ( proximoCampo != null ){
+					if ( proximoCampo.enabled ) {
+						proximoCampo.setFocus();
+					} else {
+						if ( proximoCampo2 != null ){
+							proximoCampo2.setFocus();
+						}
+					}
+				}
+			}
+			
+			private function showTempo(n: Number):String
+			{
+				if(isNaN(n)){
+					cmpSM.value = 0;
+					cmpSH.value = 0;
+					return "00";
+				}
+				
+				var s:String = n.toString();
+				
+				if ( s.length < 2 ) {
+					return '0'+s;  
+				}
+				return s;
+			}
+			
+			protected function cmpMinuto_keyDownHandler(event:KeyboardEvent):void
+			{
+				if(event.keyCode == Keyboard.ENTER ){
+					if(cmpMinuto.text > "60"){
+						cmpMinuto.text = "00";
+					}else {
+						cmpSM.value = parseInt(cmpMinuto.text);
+						chamaProximoCampo();
+						
+					}
+				}
+			}
+			
+			protected function cmpHora_keyDownHandler(event:KeyboardEvent):void
+			{
+				if(event.keyCode == Keyboard.ENTER ){
+					if(cmpHora.text > "23"){
+						cmpHora.text = "00";
+					}else {
+						cmpSH.value = parseInt(cmpHora.text);
+					}
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:Spinner id="cmpSM" allowValueWrap="true" snapInterval="1" enabled="{enabled}" x="33" y="28" width="23" value="0" maximum="59"  minimum="0"/>
+	<s:Spinner id="cmpSH" allowValueWrap="true" snapInterval="1" enabled="{enabled}" x="3" y="28" width="23" value="0" maximum="23"  minimum="0"/>
+	<components:TextInputCod id="cmpHora" enabled="{enabled}" restrict="0-9" x="3" y="4" width="23" maxChars="2" text="{showTempo(cmpSH.value)}" 
+					  proximoCampo="{cmpMinuto}"  keyDown="cmpHora_keyDownHandler(event)"/>
+	<components:TextInputCod id="cmpMinuto" enabled="{enabled}" restrict="0-9" x="33" y="4" width="23" maxChars="2" text="{showTempo(cmpSM.value)}"
+						 keyDown="cmpMinuto_keyDownHandler(event)"/>
+	<s:Label x="28" y="10" fontWeight="bold" text=":"/>
+</s:Group>

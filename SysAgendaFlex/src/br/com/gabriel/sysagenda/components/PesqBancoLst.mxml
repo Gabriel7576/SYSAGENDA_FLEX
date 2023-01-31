@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   xmlns:services="services.*"
+			   width="622" height="448" 
+			   close="pesqGrupoLojaLst_closeHandler(event)"
+			   creationComplete="pesqGrupoLojaLst_creationCompleteHandler(event)"
+			   title="Pesquisa de Banco">
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.messaging.Producer;
+			import mx.rpc.events.ResultEvent;
+			
+			import valueObjects.Contato;
+			
+			
+			
+			[Bindable]
+			public var banco :Contato = null;
+			
+			[Bindable]
+			public var fechado :Boolean = false;
+			
+			
+			protected function btPesquisar_clickHandler(event:MouseEvent):void
+			{
+				getListResult.token = pesqService.getLista(0,"");
+			}
+			
+			protected function pesqGrupoLojaLst_creationCompleteHandler(event:FlexEvent):void
+			{
+				tiPesquisa.setFocus();
+			}
+			protected function btSelecionar_clickHandler(event:MouseEvent):void
+			{
+				if(dg.selectedIndex!= -1){
+					banco = dg.selectedItem as Contato;
+					PopUpManager.removePopUp(this);
+				} else {
+					Alert.show("Você deve selecionar um item antes de executar esta operação.");
+				}
+			}
+			
+			protected function pesqGrupoLojaLst_closeHandler(event:CloseEvent):void
+			{
+				fechado = true;
+				PopUpManager.removePopUp(this);
+			}
+			
+			protected function getListResult_resultHandler(event:ResultEvent):void
+			{
+				objAr = event.result as ArrayCollection;
+				dg.setFocus();
+				if(objAr.length > 0){
+					dg.selectedIndex = 0;
+				}
+			}
+			
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<services:ContatoService id="pesqService" />
+
+		<s:CallResponder id="getListResult" result="getListResult_resultHandler(event)"/>
+
+		<s:ArrayCollection id="objAr"/>
+	</fx:Declarations>
+	<s:Label x="10" y="10" fontStyle="italic" fontWeight="bold" text="Pesquisa"/>
+	<s:BorderContainer x="10" y="27" width="600" height="97">
+		<s:TextInput id="tiPesquisa" x="10" y="30" width="578" keyDown="{if(event.keyCode==Keyboard.ENTER)btPesquisar_clickHandler(null) else if(event.keyCode == 27) PopUpManager.removePopUp(this)}"/>
+		<s:Button id="btPesquisar" x="510" y="64" label="Pesquisar" click="btPesquisar_clickHandler(event)"/>
+		<s:Label x="10" y="10" fontWeight="bold" text="Nome"/>
+	</s:BorderContainer>		
+	<s:Label x="10" y="145" fontStyle="italic" fontWeight="bold" text="Lista"/>
+	<s:DataGrid id="dg" x="10" y="161" width="600" height="215" keyDown="{if(event.keyCode==Keyboard.ENTER)btSelecionar_clickHandler(null) else if(event.keyCode == 27) PopUpManager.removePopUp(this)}" doubleClickEnabled="{objAr.length > 0}" doubleClick="btSelecionar_clickHandler(null)" dataProvider="{objAr}">
+		<s:columns>
+			<s:ArrayList>
+				<s:GridColumn width="90" dataField="codContato" headerText="Código"/>
+				<s:GridColumn dataField="nome" headerText="Nome"/>
+				<s:GridColumn dataField="telefone" headerText="Telefone"></s:GridColumn>
+			</s:ArrayList>
+		</s:columns>
+	</s:DataGrid>
+	<s:Button id="btSelecionar" x="530" y="384" label="Selecionar" click="btSelecionar_clickHandler(event)"/>
+	
+</s:TitleWindow>

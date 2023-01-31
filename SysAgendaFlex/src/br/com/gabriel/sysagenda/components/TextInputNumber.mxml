@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TextInput xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			 xmlns:s="library://ns.adobe.com/flex/spark" 
+			 xmlns:mx="library://ns.adobe.com/flex/mx"
+			 text=""
+			 keyDown="ti1_keyDownHandler(event)"
+			 restrict="0-9.,"
+			 textAlign="right"
+			 maxChars="10">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.containers.TabNavigator;
+			import mx.core.UIComponent;
+			
+			import org.granite.math.BigDecimal;
+			
+			import util.FuncoesConversao;
+			
+			[Bindable]
+			public var tabNavigator :TabNavigator = null;
+
+			[Bindable]
+			public var proximoCampo :UIComponent = null;
+			
+			[Bindable]
+			public var proximoCampo2 :UIComponent = null;
+			[Bindable]
+			public var proximoCampo3 :UIComponent = null;
+			
+			private var valorMaximo :BigDecimal = BigDecimal.ZERO;
+			
+			public function set setValorMaximo(valor:BigDecimal) :void
+			{
+				valorMaximo = valor;
+			}
+
+			protected function ti1_keyDownHandler(event:KeyboardEvent) :void
+			{
+				if ( event.keyCode == Keyboard.ENTER ) {
+					if ( tabNavigator != null ) {
+						tabNavigator.selectedIndex = tabNavigator.selectedIndex + 1;
+					}
+					if ( proximoCampo != null ) {
+						if ( proximoCampo.enabled )
+							proximoCampo.setFocus();
+						else if ( proximoCampo2 != null && proximoCampo2.enabled ) 
+							proximoCampo2.setFocus();
+						else if ( proximoCampo3 != null && proximoCampo3.enabled ) 
+							proximoCampo3.setFocus();
+					}
+				}
+			}
+
+			protected function textinput1_focusOutHandler(event:FocusEvent) :void
+			{
+				super.text = FuncoesConversao.stringToStringNumber(text);
+				if ( valorMaximo.equals(BigDecimal.ZERO) )
+				{
+					super.text = FuncoesConversao.stringToStringNumber(text);
+				}
+				else
+				{
+					if( text != null && text != "" ) 
+					{
+						if(valorMaximo.compareTo(FuncoesConversao.stringAllToBigDecimal(text)) < 0)
+						{
+							super.text = FuncoesConversao.stringToStringNumber(valorMaximo.toString());
+						}
+						else
+						{
+							super.text = FuncoesConversao.stringToStringNumber(text);
+						}
+					}
+				}
+			}
+			
+			public function set valor(value:String) :void
+			{
+				text = FuncoesConversao.stringToStringNumber(value);
+			}
+			
+			public function get valor() :String
+			{ 
+				return FuncoesConversao.stringAllToString(text);
+			}
+			
+			public function set valorBigDecimal(value:BigDecimal):void
+			{
+				text = FuncoesConversao.bigDecimalToStringQtd(value);
+			}
+			
+			public function get valorBigDecimal():BigDecimal
+			{
+				return FuncoesConversao.stringAllToBigDecimal(text);
+			}
+			
+			public function set valorNumber(value:Number):void
+			{
+				if ( isNaN(value) )
+					text = "";
+				else
+					text = FuncoesConversao.numberToString(value);
+			}
+			
+			public function get valorNumber() :Number
+			{
+				if ( text == "" ) {
+					return 0;
+				} else {
+					return FuncoesConversao.stringAllToFloat(text);				
+				}
+			}
+			
+			public function set valorString(value:String):void
+			{
+				text = FuncoesConversao.stringToStringNumber(value);
+			}
+			
+			public function get valorString() :String
+			{ 
+				if ( text == "" )
+					return null;
+				return FuncoesConversao.stringAllToString(text);
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+</s:TextInput>

@@ -1,0 +1,271 @@
+
+<model xmlns="http://ns.adobe.com/Fiber/1.0">
+  <annotation name="ActionScriptGeneration">
+    <item name="FullyQualifyReferences">true</item>
+  </annotation>
+  <service name="ContatoService">
+    <annotation name="ActionScriptGeneration">
+      <item name="ServiceType">RemoteObject</item>
+      <item name="Package">services</item>
+      <item name="Destination">contatoService</item>
+    </annotation>
+    <annotation name="ServiceConfig">
+      <item name="DEFAULT_ENTITY_PACKAGE">valueObjects</item>
+      <item name="contextRoot">/sysagenda</item>
+      <item name="rootUrl">http://localhost:8080/sysagenda</item>
+      <item name="LINKED_FILE"></item>
+      <item name="ABSOLUTE_ENDPOINT">http://localhost:8080/sysagenda/messagebroker/amf</item>
+    </annotation>
+    <annotation name="ServiceTypeGroup">
+      <item name="ServiceBackendType">BlazeDS</item>
+    </annotation>
+    <function name="getLista" return-type="Contato[]">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">integer,string</item>
+        <item name="returnType">Contato</item>
+      </annotation>
+      <annotation name="ValidProperties">
+        <item name="propertySpecifier">telefone,nome,codContato</item>
+      </annotation>
+      <parameter name="arg0" type="integer"/>
+      <parameter name="arg1" type="string"/>
+    </function>
+    <function name="getContato" return-type="Contato">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">integer</item>
+        <item name="returnType">Contato</item>
+      </annotation>
+      <annotation name="ValidProperties">
+        <item name="propertySpecifier">telefone,nome,codContato</item>
+      </annotation>
+      <parameter name="arg0" type="integer"/>
+    </function>
+    <function name="adiciona" return-type="Contato">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">Contato</item>
+        <item name="returnType">Contato</item>
+      </annotation>
+      <annotation name="ValidProperties">
+        <item name="propertySpecifier">telefone,nome,codContato</item>
+      </annotation>
+      <parameter name="arg0" type="Contato"/>
+    </function>
+    <function name="altera" return-type="Contato">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">Contato</item>
+        <item name="returnType">Contato</item>
+      </annotation>
+      <annotation name="ValidProperties">
+        <item name="propertySpecifier">telefone,nome,codContato</item>
+      </annotation>
+      <parameter name="arg0" type="Contato"/>
+    </function>
+    <function name="getCodContato" return-type="integer">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="returnType">integer</item>
+      </annotation>
+    </function>
+    <function name="deletaContato" return-type="void">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">integer</item>
+      </annotation>
+      <parameter name="arg0" type="integer"/>
+    </function>
+  </service>
+  <entity name="Contato">
+    <annotation name="EntityProperties">
+      <item name="EntityOriginalName">Contato</item>
+    </annotation>
+    <annotation name="ServerProperties">
+      <item name="RemoteClass">br.com.gabriel.sysagenda.domain.Contato</item>
+      <item name="IncludeRemoteClass">nonempty</item>
+    </annotation>
+    <annotation name="service Group">
+      <item name="service">ContatoService,Dummy</item>
+    </annotation>
+    <annotation name="ActionScriptGeneration">
+      <item name="Package">valueObjects</item>
+    </annotation>
+    <annotation name="getLista">
+      <item name="propertySpecifier">telefone,nome,codContato</item>
+    </annotation>
+    <annotation name="getContato">
+      <item name="propertySpecifier">telefone,nome,codContato</item>
+    </annotation>
+    <annotation name="adiciona">
+      <item name="propertySpecifier">telefone,nome,codContato</item>
+    </annotation>
+    <annotation name="altera">
+      <item name="propertySpecifier">telefone,nome,codContato</item>
+    </annotation>
+    <property name="telefone" type="long"/>
+    <property name="nome" type="string"/>
+    <property name="codContato" type="integer"/>
+  </entity>
+  <service name="RendererService">
+    <annotation name="ActionScriptGeneration">
+      <item name="ServiceType">RemoteObject</item>
+      <item name="Package">services</item>
+      <item name="Destination">rendererService</item>
+    </annotation>
+    <annotation name="ServiceConfig">
+      <item name="DEFAULT_ENTITY_PACKAGE">valueObjects</item>
+      <item name="contextRoot">/sysagenda</item>
+      <item name="rootUrl">http://localhost:8080/sysagenda</item>
+      <item name="LINKED_FILE"></item>
+      <item name="ABSOLUTE_ENDPOINT">http://localhost:8080/sysagenda/messagebroker/amf</item>
+    </annotation>
+    <annotation name="ServiceTypeGroup">
+      <item name="ServiceBackendType">BlazeDS</item>
+    </annotation>
+    <function name="getContato" return-type="string">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">integer</item>
+        <item name="returnType">string</item>
+      </annotation>
+      <parameter name="arg0" type="integer"/>
+    </function>
+  </service>
+  <service name="LigacaoService">
+    <annotation name="ActionScriptGeneration">
+      <item name="ServiceType">RemoteObject</item>
+      <item name="Package">services</item>
+      <item name="Destination">ligacaoService</item>
+    </annotation>
+    <annotation name="ServiceConfig">
+      <item name="DEFAULT_ENTITY_PACKAGE">valueObjects</item>
+      <item name="contextRoot">/sysagenda</item>
+      <item name="rootUrl">http://localhost:8080/sysagenda</item>
+      <item name="LINKED_FILE"></item>
+      <item name="ABSOLUTE_ENDPOINT">http://localhost:8080/sysagenda/messagebroker/amf</item>
+    </annotation>
+    <annotation name="ServiceTypeGroup">
+      <item name="ServiceBackendType">BlazeDS</item>
+    </annotation>
+    <function name="getList" return-type="Ligacao[]">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="returnType">Ligacao</item>
+        <item name="inputParams">string,string,integer,integer</item>
+        <item name="inputParamNames">arg0,arg1,arg2,arg3</item>
+      </annotation>
+      <annotation name="ValidProperties">
+        <item name="propertySpecifier">obs,id,dataHora</item>
+      </annotation>
+      <parameter name="arg0" type="string"/>
+      <parameter name="arg1" type="string"/>
+      <parameter name="arg2" type="integer"/>
+      <parameter name="arg3" type="integer"/>
+    </function>
+    <function name="deletaLigacao" return-type="void">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">LigacaoId</item>
+      </annotation>
+      <parameter name="arg0" type="LigacaoId"/>
+    </function>
+    <function name="adiciona" return-type="Ligacao">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">Ligacao</item>
+        <item name="returnType">Ligacao</item>
+      </annotation>
+      <parameter name="arg0" type="Ligacao"/>
+    </function>
+    <function name="altera" return-type="Ligacao">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">Ligacao</item>
+        <item name="returnType">Ligacao</item>
+      </annotation>
+      <parameter name="arg0" type="Ligacao"/>
+    </function>
+    <function name="getCodLigacao" return-type="integer">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">integer</item>
+        <item name="returnType">integer</item>
+      </annotation>
+      <parameter name="arg0" type="integer"/>
+    </function>
+    <function name="getLigacao" return-type="Ligacao">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">LigacaoId</item>
+        <item name="returnType">Ligacao</item>
+      </annotation>
+      <parameter name="arg0" type="LigacaoId"/>
+    </function>
+  </service>
+  <entity name="Ligacao">
+    <annotation name="EntityProperties">
+      <item name="EntityOriginalName">Ligacao</item>
+    </annotation>
+    <annotation name="ServerProperties">
+      <item name="RemoteClass">br.com.gabriel.sysagenda.domain.Ligacao</item>
+      <item name="IncludeRemoteClass">nonempty</item>
+    </annotation>
+    <annotation name="service Group">
+      <item name="service">LigacaoService</item>
+    </annotation>
+    <annotation name="ActionScriptGeneration">
+      <item name="Package">valueObjects</item>
+    </annotation>
+    <annotation name="getList">
+      <item name="propertySpecifier">obs,id,dataHora</item>
+    </annotation>
+    <property name="obs" type="string"/>
+    <property name="id" type="LigacaoId"/>
+    <property name="dataHora" type="date"/>
+  </entity>
+  <entity name="LigacaoId">
+    <annotation name="EntityProperties">
+      <item name="EntityOriginalName">LigacaoId</item>
+    </annotation>
+    <annotation name="ServerProperties">
+      <item name="RemoteClass">br.com.gabriel.sysagenda.domain.LigacaoId</item>
+      <item name="IncludeRemoteClass">nonempty</item>
+    </annotation>
+    <annotation name="service Group">
+      <item name="service">LigacaoService</item>
+    </annotation>
+    <annotation name="ActionScriptGeneration">
+      <item name="Package">valueObjects</item>
+    </annotation>
+    <property name="codLigacao" type="integer"/>
+    <property name="codContato" type="integer"/>
+  </entity>
+</model>

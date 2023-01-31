@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:GridItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+					xmlns:s="library://ns.adobe.com/flex/spark"
+					xmlns:mx="library://ns.adobe.com/flex/mx"
+					xmlns:services="services.*"
+					clipAndEnableScrolling="true">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			override public function prepare(hasBeenRecycled:Boolean):void {
+	
+					if ( data != null ) {
+						if ( data[column.dataField] != null) {
+							
+							var n:Number = data[column.dataField].codContato;
+							
+							getNomeResult.token = rendererService.getContato(n);						
+						}
+					}
+			}			
+			
+			protected function get_resultHandler(event:ResultEvent):void
+			{
+				lblData.text = event.result as String;
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<services:RendererService id="rendererService" fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+										showBusyCursor="true"/>
+														
+		<s:CallResponder id="getNomeResult" result="get_resultHandler(event)"/>
+	</fx:Declarations>
+	
+	<s:Label id="lblData" left="7" top="9"/>
+	
+</s:GridItemRenderer>

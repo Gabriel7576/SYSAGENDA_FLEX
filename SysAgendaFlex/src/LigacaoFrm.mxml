@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   xmlns:services="services.*"
+			   xmlns:components="br.com.gabriel.sysagenda.components.*"
+			   width="526" height="390" close="{PopUpManager.removePopUp(this)}" fontWeight="bold">
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.formatters.DateFormatter;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import valueObjects.Ligacao;
+			import valueObjects.LigacaoId;
+			
+			private var novo:Boolean = false;
+			
+			[Bindable]
+			private var entity:Ligacao = new Ligacao;
+			
+			[Bindable]
+			private var controleEnable:Boolean = false;
+			
+			public function cria():void
+			{
+				controleEnable = true
+				entity = new Ligacao;
+				var data:Date = new Date;
+				entity.dataHora = data;
+				novo = true;
+				pbCodContato.enabled = true;
+			}
+			
+			public function preenche(id:LigacaoId):void
+			{
+				getLigacaoResult.token = ligacaoService.getLigacao(id);
+			}
+			
+			protected function montaBean():void
+			{
+				var id:LigacaoId = new LigacaoId;
+				
+				id.codContato = pbCodContato.codContato;
+				id.codLigacao = parseInt(tiCodLigacao.text);
+				entity.id = id;
+				
+				var strDt:String = dtData.text;
+				var str:String = strDt.split("/")[2] +"-"+ strDt.split("/")[1] +"-"+ strDt.split("/")[0];
+				var data:Date = DateFormatter.parseDateString(str +" "+tpHoras.hour+":"+tpHoras.minute+":00");
+				entity.dataHora = data;
+				entity.obs = taObs.text;
+			}
+			
+			protected function getLigacaoResult_resultHandler(event:ResultEvent):void
+			{
+				entity = event.result as Ligacao;
+				var fd:DateFormatter = new DateFormatter;
+				fd.formatString = "DD/MM/YYYY JJ:NN";
+				var strHora:String = fd.format(entity.dataHora).split(" ")[1];
+				tpHoras.hour = strHora.split(":")[0];
+				tpHoras.minute = strHora.split(":")[1];
+			}
+			
+			protected function btNovo_clickHandler(event:MouseEvent):void
+			{
+				cria();
+			}
+			
+			protected function btAlterar_clickHandler(event:MouseEvent):void
+			{
+				controleEnable = true;
+			}
+			
+			protected function btSalvar_clickHandler(event:MouseEvent):void
+			{
+				montaBean();
+				
+				if (validaTela() == true) {
+					
+					controleEnable = false;
+				
+						if (novo) 
+						{
+							adicionaResult.token = ligacaoService.adiciona(entity);
+						}else{
+							alteraResult.token = ligacaoService.altera(entity);
+						}
+					
+					
+				}
+			}
+			
+			protected function validaTela():Boolean
+			{
+				if(pbCodContato.codContato == 0){
+					
+					Alert.show("Preencha o campo Codigo Contato", "",
+						mx.controls.Alert.OK, this, function(event:CloseEvent):void{
+							pbCodContato.setFocus();
+						});
+					
+					return false;
+				}
+				
+				if(dtData.text == ""){
+					
+					Alert.show("Preencha o campo data", "",
+						mx.controls.Alert.OK, this, function(event:CloseEvent):void{
+							dtData.setFocus();
+						});
+					
+					return false;
+				}
+				return true;
+			}
+			
+			protected function adicionaResult_resultHandler(event:ResultEvent):void
+			{
+				entity = event.result as Ligacao;
+				Alert.show("Salvo com sucesso!", "Alerta", mx.controls.Alert.OK, this );
+				novo = false;
+				pbCodContato.enabled = false;
+			}
+			
+			protected function alteraResult_resultHandler(event:ResultEvent):void
+			{
+				entity = event.result as Ligacao;
+			}
+			
+			protected function btCancelar_clickHandler(event:MouseEvent):void
+			{
+				if (novo) {
+					PopUpManager.removePopUp(this);
+				} else {
+					preenche(entity.id);
+				}
+			}
+			
+			protected function btApagar_clickHandler(event:MouseEvent):void
+			{
+				deletaLigacaoResult.token = ligacaoService.deletaLigacao(entity.id);
+				PopUpManager.removePopUp(this);
+			}
+			
+			protected function btFechar_clickHandler(event:MouseEvent):void
+			{
+				PopUpManager.removePopUp(this);
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<services:LigacaoService id="ligacaoService"
+								 fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+								 showBusyCursor="true"/>
+		<s:CallResponder id="getLigacaoResult" result="getLigacaoResult_resultHandler(event)"/>
+		<s:CallResponder id="adicionaResult" result="adicionaResult_resultHandler(event)"/>
+		<s:CallResponder id="alteraResult" result="alteraResult_resultHandler(event)"/>
+		<s:CallResponder id="deletaLigacaoResult"/>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:BorderContainer left="12" top="10" bottom="10" width="399" horizontalCenter="-51">
+		<components:PesqBancoCmp id="pbCodContato" x="10" y="39" width="377" enabled="false" cod="{entity.id.codContato}"/>
+		<s:TextInput id="tiCodLigacao" x="10" y="104" editable="false" text="{entity.id.codLigacao}"/>
+		<mx:DateField id="dtData" x="10" y="168" width="153" editable="{controleEnable}"
+					  enabled="{controleEnable}" formatString="DD/MM/YYYY"
+					  selectedDate="{entity.dataHora}"/>
+		<components:TimePicker id="tpHoras" x="171" y="151" width="62" enabled="{controleEnable}"/>
+		<s:TextArea id="taObs" x="10" y="238" width="377" height="87" editable="{controleEnable}"
+					text="{entity.obs}"/>
+		<s:Label id="lbObs" x="10" y="218" text="Observação"/>
+		<s:Label id="lbDataHora" x="10" y="152" text="  Data e Hora"/>
+		<s:Label id="lbDataHora0" x="10" y="152" color="#FF0000" text="*"/>
+		<s:Label id="lbCodLigacao" x="10" y="88" text="Código da Ligação"/>
+		<s:Label id="lbCodContato" x="10" y="21" text="  Código do Contato"/>
+		<s:Label id="lbCodContato0" x="10" y="21" color="#FF0000" text="*"/>
+		
+	</s:BorderContainer>
+	<s:BorderContainer right="10" top="10" bottom="10" width="95">
+		<s:Button id="btNovo" x="12" y="28" label="Novo" click="btNovo_clickHandler(event)"
+				  enabled="{!controleEnable}"/>
+		<s:Button id="btAlterar" x="12" y="55" label="Alterar" click="btAlterar_clickHandler(event)"
+				  enabled="{!controleEnable}"/>
+		<s:Button id="btSalvar" x="12" y="114" label="Salvar" click="btSalvar_clickHandler(event)"
+				  enabled="{controleEnable}"/>
+		<s:Button id="btCancelar" x="12" y="143" label="Cancelar"
+				  click="btCancelar_clickHandler(event)" enabled="{controleEnable}"/>
+		<s:Button id="btApagar" x="12" y="209" label="Apagar" click="btApagar_clickHandler(event)"
+				  color="#FF0000" enabled="{!controleEnable}"/>
+		<s:Button id="btFechar" x="12" y="275" label="Fechar" click="btFechar_clickHandler(event)"
+				  enabled="{!controleEnable}"/>
+	</s:BorderContainer>
+</s:TitleWindow>

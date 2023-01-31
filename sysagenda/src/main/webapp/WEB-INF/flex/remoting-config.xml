@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<service id="remoting-service"
+	class="flex.messaging.services.RemotingService">
+
+	<adapters>
+		<adapter-definition id="java-object"
+			class="flex.messaging.services.remoting.adapters.JavaAdapter"
+			default="true" />
+	</adapters>
+
+	<default-channels>
+		<channel ref="my-amf" />
+	</default-channels>
+
+	<destination id="contatoService">
+		<properties>
+			<source>
+				br.com.gabriel.sysagenda.service.ContatoService
+			</source>
+		</properties>
+	</destination>
+	
+	<destination id="ligacaoService">
+		<properties>
+			<source>
+				br.com.gabriel.sysagenda.service.LigacaoService
+			</source>
+		</properties>
+	</destination>
+	
+	<destination id="rendererService">
+		<properties>
+			<source>
+				br.com.gabriel.sysagenda.service.RendererService
+			</source>
+		</properties>
+	</destination>
+
+
+</service>

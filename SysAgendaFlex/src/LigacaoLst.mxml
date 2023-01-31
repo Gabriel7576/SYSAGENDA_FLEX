@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Module xmlns:fx="http://ns.adobe.com/mxml/2009"
+		  xmlns:s="library://ns.adobe.com/flex/spark"
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  xmlns:services="services.*"
+		  width="100%" height="100%" creationComplete="constructor(event)">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.formatters.DateFormatter;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import valueObjects.Ligacao;
+		
+			private static var fd:DateFormatter = new DateFormatter;
+			
+			[Bindable]
+			private var ligacoes :ArrayCollection = new ArrayCollection;
+			
+			protected function constructor(event:FlexEvent):void
+			{
+				fd = new DateFormatter();
+				fd.formatString = 'DD/MM/YYYY JJ:NN';
+			}
+			
+			protected static function formataData(item:Object, col:GridColumn): String{
+				
+				var o:Ligacao = item as Ligacao;
+				
+				return fd.format(o.dataHora);
+			}
+		
+			protected function pesquisar():void
+			{
+				getListResult.token = ligacaoService.getList(dfInicio.text, dfFinal.text, parseInt(tfCodContato.text), parseInt(tfCodLigacao.text));
+			}
+			
+			protected function getListResult_resultHandler(event:ResultEvent):void
+			{
+				ligacoes = event.result as ArrayCollection;
+			}
+			
+			protected function datagrid1_doubleClickHandler(event:MouseEvent):void
+			{
+				if(dtgLista.selectedIndex != -1) {
+					var ligacao:Ligacao = dtgLista.selectedItem as Ligacao;
+					var ui :LigacaoFrm = new LigacaoFrm();
+					PopUpManager.addPopUp(ui, this, true);
+					PopUpManager.centerPopUp(ui);
+					
+					ui.preenche(ligacao.id);
+					
+					ui.addEventListener(Event.REMOVED_FROM_STAGE, function (event :Event) :void {
+						pesquisar();
+					});
+				}
+			}
+			
+			protected function btAdicionar_clickHandler(event:MouseEvent):void
+			{
+					var ligacao:Ligacao = dtgLista.selectedItem as Ligacao;
+					var ui :LigacaoFrm = new LigacaoFrm();
+					PopUpManager.addPopUp(ui, this, true);
+					PopUpManager.centerPopUp(ui);
+					
+					ui.cria();
+					
+					ui.addEventListener(Event.REMOVED_FROM_STAGE, function (event :Event) :void {
+						pesquisar();
+					});
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<s:CallResponder id="getListResult" result="getListResult_resultHandler(event)"/>
+		<services:LigacaoService id="ligacaoService" fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)" showBusyCursor="true"/>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:Panel x="0" y="0" width="100%" height="100%" fontWeight="bold">
+		<s:BorderContainer left="9" right="10" top="15" height="95">
+			<s:Button id="btPesquisar" right="9" bottom="11" label="Pesquisar" click="pesquisar()"/>
+			<mx:DateField id="dfInicio" x="639" y="34" width="174" editable="true" formatString="DD/MM/YYYY" textAlign="center"/>
+			<mx:DateField id="dfFinal" x="843" y="34" width="171" editable="true" formatString="DD/MM/YYYY" textAlign="center"/>
+			<s:TextInput id="tfCodContato" x="10" y="35" width="234"/>
+			<s:TextInput id="tfCodLigacao" x="308" y="35" width="234"/>
+			<s:Label x="11" y="15" text="Codigo contato"/>
+			<s:Label x="308" y="15" text="Codigo ligação"/>
+			<s:Label x="638" y="12" text="De:"/>
+			<s:Label x="841" y="12" text="Ate:"/>
+		</s:BorderContainer>
+		<s:DataGrid id="dtgLista" left="9" right="11" top="162" bottom="5" dataProvider="{ligacoes}" doubleClick="datagrid1_doubleClickHandler(event)" doubleClickEnabled="true">
+			<s:columns>
+				<s:ArrayList>
+					<s:GridColumn width="110" dataField="id.codContato" headerText="codigo Contato"></s:GridColumn>
+					<s:GridColumn width="130" dataField="id" headerText="Nome Contato" itemRenderer="DisplayContato"></s:GridColumn>
+					<s:GridColumn width="160" dataField="id.codLigacao" headerText="Codigo da Ligação"></s:GridColumn>
+					<s:GridColumn width="135" dataField="dataHora" headerText="Data_Hora" labelFunction="formataData"></s:GridColumn>
+					<s:GridColumn dataField="obs" headerText="Observação"></s:GridColumn>
+				</s:ArrayList>
+			</s:columns>
+		</s:DataGrid>
+		<s:Button id="btAdicionar" y="127" right="10" label="+"
+				  click="btAdicionar_clickHandler(event)" fontSize="14"/>
+	</s:Panel>
+</s:Module>

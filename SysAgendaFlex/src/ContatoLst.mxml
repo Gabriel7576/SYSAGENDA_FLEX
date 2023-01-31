@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Module xmlns:fx="http://ns.adobe.com/mxml/2009"
+		  xmlns:s="library://ns.adobe.com/flex/spark"
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  xmlns:services="services.*"
+		  width="100%" height="100%" minWidth="990" minHeight="550" creationPolicy="all">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import valueObjects.Contato;
+			
+			[Bindable]
+			private var contatos :ArrayCollection = new ArrayCollection;
+			
+			protected function pesquisar():void
+			{
+				getListaResult.token = contatoService.getLista(parseInt(tiCodigo.text), tiNome.text);
+			}
+			
+			protected function getListaResult_resultHandler(event:ResultEvent):void
+			{
+				contatos = event.result as ArrayCollection;
+			}
+			
+			protected function datagrid1_doubleClickHandler(event:MouseEvent):void
+			{
+				if(dtgLista.selectedIndex != -1) {
+					
+					var contato:Contato = dtgLista.selectedItem as Contato;
+					var ui :ContatoFrm = new ContatoFrm();
+					PopUpManager.addPopUp(ui, this, true);
+					PopUpManager.centerPopUp(ui);
+					
+					
+					ui.preenche(contato.codContato);
+					
+					ui.addEventListener(Event.REMOVED_FROM_STAGE, function (event :Event) :void {
+						pesquisar();
+					});
+				}
+			}
+			
+			protected function btAdiciona_clickHandler(event:MouseEvent):void
+			{
+				var ui :ContatoFrm = new ContatoFrm();
+				PopUpManager.addPopUp(ui, this, true);
+				PopUpManager.centerPopUp(ui);
+				
+				ui.criar();
+				
+				ui.addEventListener(Event.REMOVED_FROM_STAGE, function (event :Event) :void {
+					pesquisar();
+				});
+			}			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<s:CallResponder id="getListaResult" result="getListaResult_resultHandler(event)"/>
+		<services:ContatoService id="contatoService"
+								 fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+								 showBusyCursor="true"/>
+	</fx:Declarations>
+	<s:Panel x="0" y="0" width="100%" height="100%" fontWeight="bold">
+		<s:BorderContainer y="28" left="10" right="10" height="94">
+			<s:TextInput id="tiCodigo" y="30" left="10" width="149"/>
+			<s:Label id="lbCodigo" x="10" y="10" fontWeight="bold" text="Código"/>
+			<s:TextInput id="tiNome" y="30" left="167" right="10"/>
+			<s:Label id="lbNome" x="167" y="10" fontWeight="bold" text="Nome"/>
+			<s:Button id="btPesquisar" y="60" right="10" label="Pesquisar" click="pesquisar()"/>
+		</s:BorderContainer>
+		<s:DataGrid id="dtgLista" left="10" right="10" top="160" bottom="9" dataProvider="{contatos}" doubleClick="datagrid1_doubleClickHandler(event)" doubleClickEnabled="true" requestedRowCount="4">
+			<s:columns>
+				<s:ArrayList>
+					<s:GridColumn width="120" dataField="codContato" headerText="Codigo Contato"></s:GridColumn>
+					<s:GridColumn dataField="nome" headerText="Nome"></s:GridColumn>
+					<s:GridColumn dataField="telefone" headerText="Telefone"></s:GridColumn>
+				</s:ArrayList>
+			</s:columns>
+		</s:DataGrid>
+		<s:Label id="lbLista" x="9" y="139" fontStyle="italic" fontWeight="bold" text="Lista"/>
+		<s:Label id="lbPesquisa" x="10" y="10" fontStyle="italic" fontWeight="bold" text="Pesquisa"/>
+		<s:Button id="btAdiciona" y="131" right="10" label="+" click="btAdiciona_clickHandler(event)"
+				  fontSize="12"/>
+	</s:Panel>
+</s:Module>

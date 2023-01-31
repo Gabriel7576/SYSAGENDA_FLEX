@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   xmlns:services="services.*"
+			   xmlns:valueObjects="valueObjects.*"
+			   xmlns:components="br.com.gabriel.sysagenda.components.*"
+			   width="492" height="330" close="{PopUpManager.removePopUp(this)}"
+			   creationPolicy="all" fontWeight="normal" title="SysAgenda">
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import org.granite.math.BigDecimal;
+			
+			import valueObjects.Contato;
+			
+			public var novo:Boolean = false;
+			
+			[Bindable]
+			private var entity:Contato = new Contato;
+			
+			[Bindable]
+			private var controleEnable:Boolean = false;
+			
+			public function criar():void
+			{
+				controleEnable = true;
+				entity = new Contato;
+				entity.telefone = 0;
+				novo = true;
+			}
+			
+			protected function altera(event:MouseEvent):void
+			{
+				controleEnable = true;
+
+				
+			}
+			
+			protected function btSalvar_clickHandler(event:MouseEvent):void
+			{
+				montaBean();
+				
+				if(validaTela()) {
+					
+					controleEnable = false;
+					
+					if(novo) {
+						adicionaResult.token = contatoService.adiciona(entity);
+					}else {
+						alteraResult.token = contatoService.altera(entity);
+					}
+				}
+				
+			}
+			
+			private function validaTela(): Boolean {
+				
+				if(entity.nome == "") {
+					
+					Alert.show("Preencha o campo Nome", "",
+						mx.controls.Alert.OK, this, function(event:CloseEvent):void{
+							tiNome.setFocus();
+						});
+					
+					return false;
+				}
+				
+				if(entity.nome.length < 3) {
+					
+					Alert.show("Nome Invalido", "",
+						mx.controls.Alert.OK, this, function(event:CloseEvent):void{
+							tiNome.setFocus();
+						});
+					
+					return false;
+				}
+				
+				if((entity.telefone + "") == ""){
+					
+					Alert.show("Preencha o campo Telefone", "",
+						mx.controls.Alert.OK, this, function(event:CloseEvent):void{
+							tiTelefone.setFocus();
+						});
+					
+					return false;
+				}
+				
+				if (tiTelefone.text == "0" || tiTelefone.text.length <= 8) 
+				{
+					Alert.show("Minimo de caracteres não atingidos!", "Alerta", mx.controls.Alert.OK, this, function(event:CloseEvent):void{
+						tiTelefone.setFocus();
+					});
+					
+					return false;
+				}
+	
+				
+				return true;
+			}
+			
+			protected function btCancelar_clickHandler(event:MouseEvent):void
+			{
+				if (novo) {
+					PopUpManager.removePopUp(this);
+				} else {
+					preenche(entity.codContato);
+				}
+			}
+			
+			protected function btApagar_clickHandler(event:MouseEvent):void
+			{
+				Alert.show("Tem certeza, isso ira apagar as ligações desse contato?", "Apagar",
+					mx.controls.Alert.YES | mx.controls.Alert.NO, this, alertEventHandler)
+			}
+
+			protected function getContatoResult_resultHandler(event:ResultEvent):void
+			{
+				entity = event.result as Contato;
+				novo = false;
+				controleEnable = false;
+			}
+			
+			protected function montaBean():void
+			{
+				entity.codContato = parseInt(tiCodigo.text);
+				entity.nome = tiNome.text;
+				entity.telefone = parseInt(tiTelefone.text);
+			}
+			
+			private function alertEventHandler(event:CloseEvent):void
+			{
+				if (event.detail == Alert.YES){
+					deletaContatoResult.token = contatoService.deletaContato(parseInt(tiCodigo.text));
+					PopUpManager.removePopUp(this);
+				}
+			}
+			
+			public function preenche(codContato:int):void
+			{
+				getContatoResult.token = contatoService.getContato(codContato);
+			}
+			
+			protected function getCreateResul_resultHandler(event:ResultEvent):void
+			{
+				entity = event.result as Contato;
+				Alert.show("Salvo com sucesso!", "Alerta", mx.controls.Alert.OK, this );
+				novo = false;
+			}
+			
+			protected function getChangeResult_resultHandler(event:ResultEvent):void
+			{
+				entity = event.result as Contato;
+			}
+			
+			protected function tiTelefone_keyDownHandler(event:KeyboardEvent):void
+			{
+				if(tiTelefone.text.length >= 11){
+					Alert.show("Máximo de caracteres atingidos!", "Alerta", mx.controls.Alert.OK, this);
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<services:ContatoService id="contatoService"
+								 fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+								 showBusyCursor="true"/>
+		<s:CallResponder id="getContatoResult" result="getContatoResult_resultHandler(event)"/>
+		<s:CallResponder id="adicionaResult" result="getCreateResul_resultHandler(event)"/>
+		<s:CallResponder id="alteraResult" result="getChangeResult_resultHandler(event)"/>
+		<s:CallResponder id="deletaContatoResult"/>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:BorderContainer left="9" width="377" height="277" fontWeight="bold" horizontalCenter="-48"
+					   verticalCenter="0">
+		<components:TextInputNumber id="tiTelefone" x="10" bottom="39" editable="{controleEnable}"
+									keyDown="tiTelefone_keyDownHandler(event)" maxChars="11"
+									text="{entity.telefone}" textAlign="left"/>
+		<s:TextInput id="tiNome" x="10" editable="{controleEnable}" text="{entity.nome}"
+					 verticalCenter="2"/>
+		<s:TextInput id="tiCodigo" x="10" top="49" editable="false" text="{entity.codContato}"/>
+		<s:Label id="lbCodigo" x="10" top="29" fontWeight="bold" text="Código do cliente"/>
+		<s:Label id="lbNome" x="10" fontWeight="bold" text="  Nome" verticalCenter="-23"/>
+		<s:Label id="lbNome0" x="10" color="#FF0000" fontWeight="bold" text="* " verticalCenter="-23"/>
+		<s:Label id="lbTelefone" x="10" bottom="69" fontWeight="bold" text="  Telefone"/>
+		<s:Label id="lbTelefone0" x="10" bottom="69" color="#FF0000" fontWeight="bold" text="* "/>
+	</s:BorderContainer>
+	<s:BorderContainer right="10" top="10" bottom="10" width="86" verticalCenter="0">
+		<s:Button id="btNovo" y="20" left="7" right="7" label="Novo" click="criar()"
+				  enabled="{!controleEnable}"/>
+		<s:Button id="btAlterar" y="46" left="7" right="7" label="Alterar" click="altera(event)"
+				  enabled="{!controleEnable}"/>
+		<s:Button id="btSalvar" y="86" left="7" right="7" label="Salvar"
+				  click="btSalvar_clickHandler(event)" enabled="{controleEnable}"/>
+		<s:Button id="btCancelar" y="111" left="7" right="6" label="Cancelar"
+				  click="btCancelar_clickHandler(event)" enabled="{controleEnable}"/>
+		<s:Button id="btApagar" y="166" left="7" right="7" label="Apagar"
+				  click="btApagar_clickHandler(event)" color="#FB0505" enabled="{!controleEnable}"/>
+		<s:Button id="btFechar" y="226" left="7" right="7" label="Fechar"
+				  click="PopUpManager.removePopUp(this);" enabled="{!controleEnable}"/>
+	</s:BorderContainer>
+</s:TitleWindow>
