@@ -8,9 +8,9 @@ import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 
 import br.com.gabriel.sysagenda.business.LigacaoBss;
-import br.com.gabriel.sysagenda.domain.Ligacao;
-import br.com.gabriel.sysagenda.domain.LigacaoId;
 import br.com.gabriel.sysagenda.factory.ConnectionFactory;
+import br.com.gabriel.sysagendasrv.domain.Ligacao;
+import br.com.gabriel.sysagendasrv.domain.LigacaoId;
 
 public class LigacaoDao {
 

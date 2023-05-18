@@ -3,8 +3,8 @@ package br.com.gabriel.sysagenda.service;
 import java.util.List;
 
 import br.com.gabriel.sysagenda.business.LigacaoBss;
-import br.com.gabriel.sysagenda.domain.Ligacao;
-import br.com.gabriel.sysagenda.domain.LigacaoId;
+import br.com.gabriel.sysagendasrv.domain.Ligacao;
+import br.com.gabriel.sysagendasrv.domain.LigacaoId;
 
 public class LigacaoService {
 

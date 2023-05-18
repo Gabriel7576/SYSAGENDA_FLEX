@@ -3,7 +3,7 @@ package br.com.gabriel.sysagenda.service;
 import java.util.List;
 
 import br.com.gabriel.sysagenda.business.ContatoBss;
-import br.com.gabriel.sysagenda.domain.Contato;
+import br.com.gabriel.sysagendasrv.domain.Contato;
 
 public class ContatoService {
 

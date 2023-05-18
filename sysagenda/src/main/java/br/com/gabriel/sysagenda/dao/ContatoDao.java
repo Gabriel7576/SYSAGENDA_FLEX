@@ -7,8 +7,8 @@ import javax.persistence.Query;
 import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 
-import br.com.gabriel.sysagenda.domain.Contato;
 import br.com.gabriel.sysagenda.factory.ConnectionFactory;
+import br.com.gabriel.sysagendasrv.domain.Contato;
 
 public class ContatoDao {
 
